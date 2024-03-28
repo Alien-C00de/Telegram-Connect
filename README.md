@@ -12,6 +12,9 @@ This repository contains Python code to connect to multiple Telegram channels us
 ### Prerequisites
 
 You must have a Telegram API ID and API HASH to run this program. Create your own using the following link and insert them into the `config.ini` file:
+
+https://telegram-spam-master.com/en/telegram-api-id-and-hash.html
+
 - Telegram API ID and HASH
 
 ### Required Libraries
