@@ -7,7 +7,6 @@ This repository contains Python code to connect to multiple Telegram channels us
 - Automatically join a single Telegram channel.
 - Join multiple channels from a list specified in a text file.
 
-
 ## Installation
 
 ### Prerequisites
@@ -35,5 +34,6 @@ Execute the tool with the following commands based on your data retrieval needs:
    ```bash
    python Telegram_Connect.py -m channel_list.txt
    ```
+![Screenshot from 2024-03-28 18-10-05](https://github.com/Alien-C00de/Telegram-Connect/assets/138598543/f370ae86-d604-42ea-9b0c-1fa7af07a918)
 
 📨 Happy Telegram Connect! 🚀
