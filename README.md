@@ -37,6 +37,7 @@ Execute the tool with the following commands based on your data retrieval needs:
    ```bash
    python Telegram_Connect.py -m channel_list.txt
    ```
-![Screenshot from 2024-03-28 18-10-05](https://github.com/Alien-C00de/Telegram-Connect/assets/138598543/f370ae86-d604-42ea-9b0c-1fa7af07a918)
+![Screenshot from 2024-03-29 10-37-32](https://github.com/Alien-C00de/Telegram-Connect/assets/138598543/5b8d61ff-15b8-4c9a-a284-73b0076d9557)
+
 
 📨 Happy Telegram Connect! 🚀
