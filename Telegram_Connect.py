@@ -14,13 +14,13 @@ class get_authorization():
         pass
     
     # Create client connection
-    def get_client(self):
+    async def get_client(self):
 
         try:
              # Reading Configs
             config = ConfigParser()
-            current_directory = os.getcwd()
-            config_path = os.path.join(current_directory, "config/config.ini")
+            current_directory =  os.getcwd()
+            config_path =  os.path.join(current_directory, "config/config.ini")
             # config_path = pathlib.Path(__file__).parent.absolute() / "config/config.ini"
             config.read(config_path)
 
@@ -31,12 +31,12 @@ class get_authorization():
             phone = config['Telegram']['phone'] 
 
             client = TelegramClient(phone, api_id, api_hash)
-            client.connect()
+            await client.connect()
 
-            if not client.is_user_authorized():
-                client.send_code_request(phone)
+            if not await client.is_user_authorized():
+                await tclient.send_code_request(phone)
                 os.system('clear')
-                client.sign_in(phone, input(Fore.GREEN + Style.BRIGHT  + "[+] Enter the verification code: " + Fore.RESET + Style.RESET_ALL))
+                await client.sign_in(phone, input(Fore.GREEN + Style.BRIGHT  + "[+] Enter the verification code: " + Fore.RESET + Style.RESET_ALL))
 
             return client
         
@@ -44,7 +44,7 @@ class get_authorization():
             msg = "[-] " + "Authorization Error: Please check required details are correct.\n" 
             print(Fore.RED + Style.BRIGHT + msg + Fore.RESET + Style.RESET_ALL)
         except Exception as EX:
-            client.sign_in(password=input('Password: '))
+            await client.sign_in(password=input('Password: '))
             msg = "[-] " + "Authorization Error:" + str(EX)
             print(Fore.RED + Style.BRIGHT + msg + Fore.RESET + Style.RESET_ALL)
 
@@ -55,49 +55,50 @@ class Connect():
         pass
     
     # Check if the user is authorized
-    def __authorized(self):
+    async def __authorized(self):
         auth = get_authorization()
-        client = auth.get_client()
+        client = await auth.get_client()
         return client
     
     # Retrieve the entity from the channel & check if the channel is valid
-    def __retrieve_entity(self, client, _target):
+    async def __retrieve_entity(self, client, _target):
         entity = None
         try:
-            entity = client.get_entity(_target)
+            entity = await client.get_entity(_target)
             return entity
         except Exception as exx:
             try:
                 group  = int(_target)
-                entity = client.get_entity(group)
+                entity = await client.get_entity(group)
                 return entity
             except:
                 pass
             pass
         if not entity:
             try:
-                entity = client.get_entity(PeerChannel(_target))
+                entity = await client.get_entity(PeerChannel(_target))
                 return entity
             except Exception as exx:
                 pass
         if not entity:
             try:
-                entity = client.get_entity(PeerChat(_target))
+                entity = await client.get_entity(PeerChat(_target))
                 return entity
             except Exception as exx:
                 pass
         return entity
     
     # This function is used to join the channel
-    def __Join_Channel(self, client, entity):
-        result = client(JoinChannelRequest(channel = entity.id))
+    async def __Join_Channel(self, client, entity):
+        result = await client(JoinChannelRequest(channel = entity.id))
 
+        # print(result.stringify())
         if result == "ChannelInvalidError":
             print (Fore.RED + Style.BRIGHT + "Invalid Channel" + Fore.RESET + Style.RESET_ALL)
         
         # Check if you have joined the channel
-        participants = client(GetParticipantsRequest(entity.id, ChannelParticipantsSearch(''), 0, 100, hash=0))
-        me = client.get_me()
+        participants = await client(GetParticipantsRequest(entity.id, ChannelParticipantsSearch(''), 0, 100, hash=0))
+        me = await client.get_me()
         if any(user.id == me.id for user in participants.users):
             msg = f"[+] Successfully Joined {Fore.YELLOW}{Style.BRIGHT}{entity.title}{Fore.GREEN}{Style.BRIGHT} Channel!"
             print(Fore.GREEN + Style.BRIGHT + msg + Fore.RESET + Style.RESET_ALL)
@@ -106,31 +107,32 @@ class Connect():
             print(Fore.RED + Style.BRIGHT + msg + Fore.RESET + Style.RESET_ALL)
 
     # This function is used to connect to the single group
-    def __Connect_Me(self, client, channel):
-        entity  = self.__retrieve_entity(client, channel)
+    async def __Connect_Me(self, client, channel):
+        entity  = await self.__retrieve_entity(client, channel)
         
         if entity is None:
             msg = f"[-] Error: Cannot Find {Fore.YELLOW}{Style.BRIGHT}{channel}{Fore.RED}{Style.BRIGHT} Channel"
             print(Fore.RED + Style.BRIGHT + msg + Fore.RESET + Style.RESET_ALL)
             pass
         else:
-            self.__Join_Channel(client, entity)
+            await self.__Join_Channel(client, entity)
 
     # Public function to connect to the single group
-    def connect_to_single_groups(self, channel):
-        client = self.__authorized()
-        self.__Connect_Me(client, channel)
+    async def connect_to_single_groups(self, channel):
+        client = await self.__authorized()
+        await self.__Connect_Me(client, channel)
         
     # Public function to connect to the multiple groups
-    def connect_to_multi_group(self, group_list):
-        client = self.__authorized()
+    async def connect_to_multi_group(self, group_list):
+        client = await self.__authorized()
 
         with open(group_list, "r") as group_file:
             for group in group_file.readlines():
-                self.__Connect_Me(client, group.strip())
+                await self.__Connect_Me(client, group.strip())
 
 # Main function to execute the code
-def Main():
+async def Main():
+    
     # Parser to take the arguments
     parser = argparse.ArgumentParser(description="Python Tool: Telegram Group Connect")
     parser.add_argument("-s", "--Group_Single_Connect", help="Option To Join Single Group e.g. python tele_connect.py -s group_name")
@@ -152,16 +154,18 @@ def Main():
  / / |  __/ |  __/ (_| | | | (_| | | | | | | / /__| (_) | | | | | | |  __/ (__| |_ 
  \/   \___|_|\___|\__, |_|  \__,_|_| |_| |_| \____/\___/|_| |_|_| |_|\___|\___|\__|
                   |___/                                                            
- \n""")
+        \n""" + Fore.RESET + Style.RESET_ALL)
 
     try:
         if args.Group_Single_Connect:
+            print(f"[!] Single Channel Connect : Channel Name -> {args.Group_Single_Connect.strip()}", flush=True)
             connect = Connect()
-            connect.connect_to_single_groups(args.Group_Single_Connect.strip())
+            await connect.connect_to_single_groups(args.Group_Single_Connect.strip())
 
         elif args.Group_Multi_Connect:
+            print(f"[!] Multi Channel Connect : File Name -> {args.Group_Multi_Connect.strip()}", flush=True)
             connect = Connect()
-            connect.connect_to_multi_group(args.Group_Multi_Connect.strip())
+            await connect.connect_to_multi_group(args.Group_Multi_Connect.strip())
             
         elif args.help:
             print(Fore.GREEN + Style.BRIGHT + f"[*] Usage: Telegram_Connect.py [-S For_Single_Group -m Multi_Group] [-v VERSION] [-h HELP]")
@@ -188,4 +192,4 @@ def Main():
     print(Style.RESET_ALL)
 
 if __name__ == '__main__':
-    Main()
+    asyncio.run(Main())
