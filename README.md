@@ -22,6 +22,7 @@ https://telegram-spam-master.com/en/telegram-api-id-and-hash.html
 Install the following libraries to ensure the scraper runs smoothly:
 ```bash
 pip install Telethon
+pip install asyncio
 pip install configparser
 pip install colorama
 ```
